@@ -1,0 +1,42 @@
+services:
+  # frontend service
+  Frontend:
+    build:
+      context: ./
+      dockerfile: ./Frontend/Dockerfile
+    image: convidenx_frontend
+    container_name: convidenx_frontend
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./Frontend:/Frontend/
+      - ./.env:/Frontend/.env
+    depends_on: 
+      - Backend
+
+  # backend service
+  Backend:
+    build:
+      context: ./
+      dockerfile: ./Backend/Dockerfile
+    image: convidenx_backend
+    container_name: convidenx_backend
+    ports:
+      - 9000:9000
+    volumes:
+      - ./Backend:/Backend/
+      - ./.env:/Backend/.env
+    restart: always
+    depends_on:
+      - db
+
+  # database service
+  db:
+    image: postgres
+    container_name: convidenx_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: convidenx_db
+    restart: always
