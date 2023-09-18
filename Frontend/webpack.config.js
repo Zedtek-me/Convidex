@@ -34,6 +34,7 @@ module.exports = {
             directory:"./public"
         },
         port:5000,
-        historyApiFallback:true
+        historyApiFallback:true,
+        hot:true
     }
 }
