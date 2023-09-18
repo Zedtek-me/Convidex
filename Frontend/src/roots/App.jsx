@@ -20,7 +20,7 @@ export default function App(props){
                     {/* checks current browser location against each routes */}
                     <Routes>
                         <Route path="/">
-                            <Route path="home" element={<Home></Home>}/>
+                            <Route path="home" element={<Home/>}/>
                         </Route>
                     </Routes>
                 </Router>
