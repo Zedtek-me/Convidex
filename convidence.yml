@@ -11,7 +11,7 @@ services:
       - 5000:5000
     volumes:
       - ./Frontend:/Frontend/
-      - ./.env:/Frontend/.env
+      - ./Frontend/.env:/Frontend/.env
     depends_on: 
       - Backend
 
@@ -26,7 +26,7 @@ services:
       - 9000:9000
     volumes:
       - ./Backend:/Backend/
-      - ./.env:/Backend/.env
+      - ./Backend/.env:/Backend/.env
     restart: always
     depends_on:
       - db
@@ -40,3 +40,5 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: convidenx_db
     restart: always
+    ports:
+      - 5432:5432
