@@ -2,10 +2,10 @@ const path = require("path")
 
 
 module.exports = {
-    entry:path.join(__dirname, ""),
+    entry:path.join(__dirname, "/src/roots/index.jsx"),
     output:{
-        filename: "",
-        path:path.resolve(),
+        filename: "bundled.js",
+        path:path.resolve(__dirname, "public/"),
         publicPath:"/"
     },
     module:{
