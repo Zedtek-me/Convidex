@@ -4,7 +4,9 @@
   "description": "The frontend app that powers the video confrencing application named 'Confidenx', as built by Zechariah(Zedtek)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack serve --config webpack.config.js --progress --mode development",
+    "start": "npm src/app.js"
   },
   "keywords": [],
   "author": "",
