@@ -91,11 +91,15 @@ html, body, #root{
 }
 .catch-phrase{
     font-weight: 300;
+    font-size: 18px;
 }
 .introductory-text, .catch-phrase{
     width: 70%;
     padding-left: 10px;
 
+}
+.introductory-text{
+    font-size: 30px;
 }
 .btn-signups{
     display: flex;
