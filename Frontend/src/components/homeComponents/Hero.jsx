@@ -10,7 +10,7 @@ const Hero = ()=>{
                 </h3>
                 <p className="catch-phrase">
                     Business teams collaborate easily when there's a reliable means of communication.
-                    Convidex brings you such ease of communication for your team members...
+                    Convidex brings such ease of communication for your team members...
                 </p>
                 <div className="btn-singups">
                     <button type="button" className="new-meeting">
