@@ -3,6 +3,7 @@ import Nav from "./Nav.jsx"
 import "./Home.css"
 import Body from "./Body.jsx"
 import Hero from "./Hero.jsx"
+import Footer from "./Footer.jsx"
 
 export const Home = ()=>{
     return (
@@ -11,6 +12,7 @@ export const Home = ()=>{
             <Nav/>
             <Body>
                 <Hero/>
+                <Footer/>
             </Body>
         </div>
     )
