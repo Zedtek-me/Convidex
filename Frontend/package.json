@@ -1,5 +1,5 @@
 {
-  "name": "ConfidenxFrontend",
+  "name": "confidenxfrontend",
   "version": "1.0.0",
   "description": "The frontend app that powers the video confrencing application named 'Confidenx', as built by Zechariah(Zedtek)",
   "main": "index.js",
