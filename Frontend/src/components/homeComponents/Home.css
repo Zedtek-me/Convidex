@@ -1,0 +1,47 @@
+*, body, #root {
+    box-sizing:border-box;
+}
+
+html, body, #root{
+    width: 100%;
+    height:100%;
+}
+/* home stylings */
+.home-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+}
+
+/* home navigation */
+.navigation {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    align-self: flex-end;
+}
+
+.links > * {
+    color: black;
+    margin: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: all .5 ease-in-out;
+}
+#signup.signup{
+    border: solid 1px blue;
+    padding:5px
+
+}
+
+#signup.signup:hover{
+    border: solid 1px white;
+    padding:5px;
+    background-color: blue;
+}
