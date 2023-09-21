@@ -167,3 +167,15 @@ html, body, #root{
     color: white;
     height: 50px;
 }
+
+
+/* create meeting and join meeting stylings */
+.create-meeting{
+    display: flex;
+    flex-direction: column;
+}
+
+.create-meeting form{
+    display: flex;
+    flex-direction: column;
+}

@@ -1,6 +1,6 @@
 import React from "react"
 import heroImage from "../../../public/assets/images/africanManConf.jpg"
-const Hero = ()=>{
+const Hero = ({navigateMeeting})=>{
     return (
         <div className="hero">
             <div className="introduction">
@@ -13,10 +13,10 @@ const Hero = ()=>{
                     Convidex brings such ease of communication for you and your team members...
                 </p>
                 <div className="btn-singups">
-                    <button type="button" className="new-meeting">
+                    <button type="button" className="new-meeting" onClick={navigateMeeting} name="create-meeting">
                         Create new meeting
                     </button>
-                    <button type="button" className="join-meeting">
+                    <button type="button" className="join-meeting" onClick={navigateMeeting} name="join-meeting">
                         Join an ongoing meeting
                     </button>
                 </div>
