@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client"
 import { useQuery, useMutation, gql } from "@apollo/client"
 import {Home} from "../components/homeComponents/Home.jsx"
+import CreateMeeting from "../components/homeComponents/CreateMeeting.jsx"
 
 import "./App.css"
 
@@ -21,6 +22,8 @@ export default function App(props){
                     <Routes>
                         <Route path="/">
                             <Route path="home" element={<Home/>}/>
+                            <Route path="create-meeting" element={<CreateMeeting/>}/>
+                            <Route path="join-meeting" element={<>Join Meeting</>}/>
                         </Route>
                     </Routes>
                 </Router>
