@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.manager import Manager
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ValidationError
+from socket_server.utils.uuid_utils import generate_uuid
+
 # Create your models here.
 class CustomUserManager(BaseUserManager):
     def create_user(self, **kwargs)->AbstractBaseUser:
@@ -45,7 +47,44 @@ class Profile(models.Model):
     owner = models.OneToOneField(to="socket_server.User", on_delete=models.CASCADE, null=True, related_name="profile")
     phone_number = models.BinaryField(max_length=12, null=True)
     profile_picture = models.ImageField(upload_to="profile_images/", null=True)
+    user_queue = models.CharField(null=True, blank=True)
 
 
     def __str__(self):
         return f"{self.owner.username}'s profile"
+
+
+
+
+class Meeting(models.Model):
+    '''all meeting information -- create only'''
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(verbose_name="meeting title", max_length=(200*1000), null=True, blank=True)
+    password = models.CharField(verbose_name="meeting password", max_length=20, null=True, blank=True, validators=[])
+    owner = models.ForeignKey(to="socket_server.User", on_delete=models.CASCADE, null=False, related_name="meetings", related_query_name="meetings")
+    link = models.UUIDField(verbose_name="meeting link", default=generate_uuid(), null=True, unique=True, blank=True)
+    offer = models.CharField(verbose_name="creator's offer", null=False, blank=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_edited = models.DateTimeField(auto_now=True)
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not(self.link):
+            self.link = generate_uuid()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = "meeting"
+        verbose_name = "meeting"
+        verbose_name_plural = "meetings"
+
+class MeetingJoiner(models.Model):
+    '''for joiners of any meetings'''
+    id = models.AutoField(primary_key=True)
+    joiner = models.ForeignKey(to="socket_server.User", on_delete=models.CASCADE, related_name="joined_meetings", related_query_name="joined_meetings")
+    meeting = models.ForeignKey(to="socket_server.Meeting", on_delete=models.CASCADE, related_name="joiners", related_query_name="joiners")
+    meeting_link = models.CharField(verbose_name="link",null=True, blank=True)
+    meeting_pass = models.CharField(blank=True, null=True)
+    answer = models.CharField(verbose_name="meeting joiner's answer", null=False, blank=False)
+    date_joined = models.DateTimeField(auto_now_add=True)
