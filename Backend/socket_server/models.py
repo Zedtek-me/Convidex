@@ -37,6 +37,9 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['username']
     objects = CustomUserManager()
 
+    class Meta:
+        db_table = "user"
+
     def __str__(self):
         return self.username
 
@@ -49,6 +52,8 @@ class Profile(models.Model):
     profile_picture = models.ImageField(upload_to="profile_images/", null=True)
     user_queue = models.CharField(null=True, blank=True)
 
+    class Meta:
+        db_table = "user_profile"
 
     def __str__(self):
         return f"{self.owner.username}'s profile"
@@ -79,6 +84,8 @@ class Meeting(models.Model):
         verbose_name = "meeting"
         verbose_name_plural = "meetings"
 
+    def __str__(self):
+        return self.title or f"{self.owner.username}'s meeting."
 class MeetingJoiner(models.Model):
     '''for joiners of any meetings'''
     id = models.AutoField(primary_key=True)
@@ -88,3 +95,10 @@ class MeetingJoiner(models.Model):
     meeting_pass = models.CharField(blank=True, null=True)
     answer = models.CharField(verbose_name="meeting joiner's answer", null=False, blank=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        db_table = "meeting_joiner"
+
+    def __str__(self):
+        return self.meeting.title or f"joined by {self.joiner.username or self.joiner.email}"
