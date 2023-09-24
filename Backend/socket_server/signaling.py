@@ -44,7 +44,7 @@ class Signaling(WebsocketConsumer):
             meeting.save()
             return self.send(json.dumps({"created":"meeting successfully created!"}))
         
-        if not is_offer and not ice_candidate:
+        if (not is_offer) and (not ice_candidate) and (not data.get("message")):
             '''user wants to join our meeting'''           
             meeting_to_join = Meeting.objects.filter(Q(link=data.get("meeting_link") | Q(title__iexact=data.get("meeting_title")))).first()
             if not meeting_to_join:
@@ -65,7 +65,7 @@ class Signaling(WebsocketConsumer):
             channel_layer.send(
                 meeting_owner.profile.user_queue,
                 {   "answer":joined_user.answer,
-                    "type":"user.queue"
+                    "type":"user.queue.hanlder"
                     }    
             ) 
 
@@ -75,10 +75,13 @@ class Signaling(WebsocketConsumer):
             '''
             ellipsis
 
+        if data.get("message"):
+            self.send(json.dumps(json.loads(data.get("message"))))
+
     def disconnect(self, code):
         return super().disconnect(code)
 
-    def user_queue(self, message):
+    def user_queue_handler(self, message):
         '''
         handles messages that sent to individual queues
         '''
