@@ -1,3 +1,19 @@
+import { gql } from "@apollo/client";
+
+
+export const CREATE_MEETING = gql`
+    mutation CreateMeeting($title:String!, $password:String, $startDate:Date, $endDate:Date){
+        createMeeting(title:$title, password:$password, startDate:$startDate, endDate:$endDate){
+            message
+            meeting{
+                title
+                password
+                link
+            }
+        }
+    }
+`
+
 export const handleMeetingInput = (e, stateSetter)=>{
         let element, key, value, data;
         element = e.target
@@ -13,16 +29,3 @@ export const handleMeetingInput = (e, stateSetter)=>{
         })
 }
 
-
-export const handleSubmitForm = (e, stateInfo)=>{
-    let element;
-    element = e.target
-    console.log("state info to be submitted...", stateInfo)
-    if(element.name == "create-meeting"){
-        // send a request to the create-meeting endpoint on the backend
-    }
-
-    else if(element.name == "join-meeting"){
-        // send a request to join the meeting
-    }
-}
