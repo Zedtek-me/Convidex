@@ -173,9 +173,49 @@ html, body, #root{
 .create-meeting{
     display: flex;
     flex-direction: column;
+    width: 70%;
+    height: 100%;
+    margin-top: 5%;
+    align-self: center;
 }
 
 .create-meeting form{
     display: flex;
     flex-direction: column;
+}
+
+.create-meeting form label{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+}
+
+.create-meeting form label > input{
+    width: 80%;
+    height: 60px;
+    border-radius: 15px;
+    padding: 5px;
+    text-align: left;
+}
+
+.create-meeting form label > * {
+    margin:2%;
+}
+
+#create-btn{
+    width: 15%;
+    height: 10%;
+    padding: 5px;
+    background-color: white;
+    border: solid 1px blue;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all .4s ease-in-out;
+}
+
+#create-btn:hover{
+    background-color: blue;
+    color: white;
 }

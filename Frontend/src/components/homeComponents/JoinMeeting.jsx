@@ -4,7 +4,7 @@ import React from "react"
 const JoinMeeting = ()=>{
 
     return (
-        <div className="join-meeting">
+        <div className="join-meeting-form">
             Join meeting page
         </div>
     )
