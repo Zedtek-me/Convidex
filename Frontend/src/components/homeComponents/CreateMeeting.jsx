@@ -1,34 +1,13 @@
 import React, {useState} from "react"
 import { useNavigate } from "react-router-dom"
-import { handleMeetingInput, CREATE_MEETING } from "../../utilities/meetingInfoUtils"
+import { handleMeetingInput, CREATE_MEETING , WebRtcPlugin, WebSocketPlugin, handleSubmitForm } from "../../utilities/meetingInfoUtils"
 import { useLazyQuery, useMutation, gql } from "@apollo/client"
 import { createContext } from "react"
+
 
 const CreateMeeting = ()=>{
     let [meetingInfo, setMeetingInfo] = useState({})
     let redirect = useNavigate()
-    let [createMeetingFunc, {loading : createLoading, data : createDataa, error : createError}] = useMutation(CREATE_MEETING)
-
-    const handleSubmitForm = (e)=>{
-        let element;
-        element = e.target
-        console.log("state info to be submitted...", meetingInfo)
-        if(element.name == "create-meeting"){
-            // send a request to the create-meeting mutation on the backend
-            createMeetingFunc({
-                variables:{
-                    title:meetingInfo["meeting-title"],
-                    password:meetingInfo["meeting-password"]
-                }
-            })
-            // redirect to the user dashboard where they see all meetings created by themselves
-            // there they decide whether they want to start the meeting immediately or not
-        }
-    
-        else if(element.name == "join-meeting"){
-            // send a request to join the meeting
-        }
-    }
 
     return (
         <div className="create-meeting">
@@ -50,7 +29,7 @@ const CreateMeeting = ()=>{
                     <input type="password" name="meeting-password" id="meeting-password" placeholder="password" onChange={(e)=>handleMeetingInput(e, setMeetingInfo)}/>
                 </label>
                 <label htmlFor="btn" id="btn-label">
-                    <button type="button" name="create-meeting" id="create-btn" onClick={(e)=>handleSubmitForm(e)}>Submit</button>
+                    <button type="button" name="create-meeting" id="create-btn" onClick={(e)=>handleSubmitForm(e, meetingInfo)}>Submit</button>
                 </label>
             </form>
         </div>
