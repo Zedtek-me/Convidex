@@ -1,10 +1,12 @@
 import React, {useState} from "react"
+import { useNavigate } from "react-router-dom"
 import { handleMeetingInput, CREATE_MEETING } from "../../utilities/meetingInfoUtils"
 import { useLazyQuery, useMutation, gql } from "@apollo/client"
 import { createContext } from "react"
 
 const CreateMeeting = ()=>{
     let [meetingInfo, setMeetingInfo] = useState({})
+    let redirect = useNavigate()
     let [createMeetingFunc, {loading : createLoading, data : createDataa, error : createError}] = useMutation(CREATE_MEETING)
 
     const handleSubmitForm = (e)=>{
@@ -19,6 +21,8 @@ const CreateMeeting = ()=>{
                     password:meetingInfo["meeting-password"]
                 }
             })
+            // redirect to the user dashboard where they see all meetings created by themselves
+            // there they decide whether they want to start the meeting immediately or not
         }
     
         else if(element.name == "join-meeting"){
