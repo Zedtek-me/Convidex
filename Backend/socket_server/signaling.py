@@ -59,6 +59,8 @@ class Signaling(WebsocketConsumer):
                 answer=data.get("answer")
             )
             joined_user.save()
+            meeting_offer = meeting_to_join.offer
+            self.send(json.dumps({"joined_meeting_offer": meeting_offer}))
 
             # check the owner of that meeting here, and get his channel_name, in order to send directly to the channel of the owner
             meeting_owner = meeting_to_join.owner            
