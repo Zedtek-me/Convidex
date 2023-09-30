@@ -1,7 +1,7 @@
 import graphene
-from socket_server.schema.object_types.types import MeetingType
+from socket_server.schema.object_types.types import MeetingType, UserType, MeetingJoinerType
 from socket_server.utils.kwargs_utils import cherry_pick
-from socket_server.models import Meeting
+from socket_server.models import Meeting, User
 
 class CreateMeeting(graphene.Mutation):
     '''creates meeting through graphql'''
@@ -16,8 +16,40 @@ class CreateMeeting(graphene.Mutation):
 
     def mutate(parent, info, **kwargs):
         title, password, start_date, end_date = cherry_pick(["title", "password", "start_date", "end_date"], kwargs)
+        User
+
+
+class LoginUser(graphene.Mutation):
+    message = graphene.String()
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        username = graphene.String(required=True)
+        email = graphene.String()
+        password = graphene.String(required=True)
+
+    def mutate(parent, info, **kwargs):
         pass
 
 
+class CreateAcount(graphene.Mutation):
+    message = graphene.String()
+    user = graphene.Field(UserType)
+    class Arguments:
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
+        other_name = graphene.String()
+        password = graphene.String(required=True)
+
+    def mutate(parent, info, **kwargs):
+        (username, email, other_name, password) = cherry_pick(["username", "email", "other_name", "password"], kwargs)
+        user = User.objects.create_user(**{"username":username,"email":email, "name":other_name, 'password':password})
+        return CreateAcount(
+            message="ACCOUNT CREATED SUCCESSFULLY!",
+            user=user
+        )
+    
 class Mutation(graphene.ObjectType):
     create_meeting = CreateMeeting.Field()
+    create_account = CreateAcount.Field()
+    login_user = LoginUser.Field()
