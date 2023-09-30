@@ -106,7 +106,7 @@ DATABASES = {
 
 GRAPHENE = {
     "SCHEMA": "Convidenx.schema.schema",
-    "MIDDLEWARE":"graphql_jwt.middleware.JSONWebTokenMiddleware"
+    "MIDDLEWARE":["graphql_jwt.middleware.JSONWebTokenMiddleware"]
 }
 
 # Password validation

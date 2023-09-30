@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const signalServerUrl = process.env.SIGNAL_SERVER_URL || 5000
+const signalServerUrl = process.env.SIGNAL_SERVER_URL || "ws://localhost:9000/signaling/"
 
 export const CREATE_MEETING = gql`
     mutation CreateMeeting($title:String!, $password:String, $startDate:Date, $endDate:Date){
@@ -67,7 +67,7 @@ export class WebSocketPlugin{
     }
 
     sendMesage(msg){
-        let msg = JSON.stringify(msg)
+        msg = JSON.stringify(msg)
         this.signalingServer.send(msg)
     }
 
@@ -77,31 +77,39 @@ export class WebSocketPlugin{
 export const handleSubmitForm = async (e, stateInfo)=>{
     // instantiate signalingServer here
     const socket = new WebSocketPlugin(signalServerUrl)
-    const rtcConnection = new WebRtcPlugin()
+    const rtcConnection = new WebRtcPlugin({iceServers:[{"urls":["stun:stun.l.google.com:19302"]}]})
     const date = new Date()
-
-    let element, feedback;
+    var element, feedback;
     element = e.target
-    console.log("state info to be submitted...", meetingInfo)
+    socket.signalingServer.onmessage = (e)=>{
+        feedback = JSON.parse(e.data)
+        console.log("feedback from signaling server ... ", feedback)
+    }
+
+    console.log("state info to be submitted...", stateInfo)
+    console.log("feeback printing at the top... ", feedback)
     if(element.name == "create-meeting"){
         // send message to backend to create meeting
         let offer = await rtcConnection.peerConnection.createOffer()
         await rtcConnection.peerConnection.setLocalDescription(offer)
         console.log("offer created here... ", offer)
-        try{
-            socket.sendMesage(JSON.stringify({
-                "offer": offer,
-                "title": stateInfo["meeting-title"] ?? "Untitled",
-                "start_date": stateInfo["start_date"] ?? date.toJSON(),
-                "end_date": stateInfo["end_date"] ?? "",
-                "password": stateInfo["password"] ?? ""
-            }))
-        }
-        catch(e){
-            feedback = "failed to create meeting"
-            return feedback
-        }
-
+        setTimeout(()=>{
+            try{
+                let data ={
+                    offer: offer,
+                    title: stateInfo["meeting-title"] ?? "Untitled",
+                    start_date: stateInfo["start-date"] ?? date.toJSON(),
+                    end_date: stateInfo["end-date"] ?? "",
+                    password: stateInfo["meeting-password"] ?? ""
+                }
+                socket.sendMesage(data)
+            }
+            catch(e){
+                console.log("error occured when sending meeting credentials... ", e)
+                feedback = "failed to create meeting"
+                return feedback
+            }
+        }, 3000)
     }
 
     else if(element.name == "join-meeting"){
@@ -115,17 +123,18 @@ export const handleSubmitForm = async (e, stateInfo)=>{
             "password" : stateInfo["password"]
         }))
     }
+    console.log("feedback here... ", feedback)
+    if(feedback ? feedback.created : null){
+        return feedback.created
+    }
+    // here you've sent to join a meeting, and it's been successfully created on the backend
+    if(feedback ? feedback.meeting_to_join_offer: null){
+        // set remote description with the offer gotten
+        await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
+        return "joining"
+    }
 
-    socket.signalingServer.onmessage = async (e)=>{
-        feedback = JSON.parse(e.data)
-        if(feedback.created){
-            return feedback.created
-        }
-        // here you've sent to join a meeting, and it's been successfully created on the backend
-        if(feedback.meeting_to_join_offer){
-            // set remote description with the offer gotten
-            await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
-            return "joining"
-        }
+    else{
+        return "Not found"
     }
 }
