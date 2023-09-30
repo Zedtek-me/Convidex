@@ -82,6 +82,10 @@ TEMPLATES = [
         },
     },
 ]
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
 
 WSGI_APPLICATION = 'Convidenx.wsgi.application'
 ASGI_APPLICATION = 'Convidenx.asgi.application'
@@ -101,7 +105,8 @@ DATABASES = {
 }
 
 GRAPHENE = {
-    "SCHEMA": "Convidenx.schema.schema"
+    "SCHEMA": "Convidenx.schema.schema",
+    "MIDDLEWARE":"graphql_jwt.middleware.JSONWebTokenMiddleware"
 }
 
 # Password validation
