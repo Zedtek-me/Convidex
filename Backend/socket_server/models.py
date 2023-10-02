@@ -68,16 +68,15 @@ class Meeting(models.Model):
     password = models.CharField(verbose_name="meeting password", max_length=20, null=True, blank=True, validators=[])
     owner = models.ForeignKey(to="socket_server.User", on_delete=models.CASCADE, null=False, related_name="meetings", related_query_name="meetings")
     link = models.UUIDField(verbose_name="meeting link", default=generate_uuid(), null=True, unique=True, blank=True)
-    offer = models.CharField(verbose_name="creator's offer", null=False, blank=False)
+    offer = models.JSONField(verbose_name="creator's offer", null=False, blank=False)
     date_created = models.DateTimeField(auto_now_add=True)
     date_edited = models.DateTimeField(auto_now=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not(self.link):
-            self.link = generate_uuid()
-        super().save(*args, **kwargs)
+        self.link = generate_uuid()
+        super(Meeting, self).save(*args, **kwargs)
 
     class Meta:
         db_table = "meeting"
@@ -93,7 +92,7 @@ class MeetingJoiner(models.Model):
     meeting = models.ForeignKey(to="socket_server.Meeting", on_delete=models.CASCADE, related_name="joiners", related_query_name="joiners")
     meeting_link = models.CharField(verbose_name="link",null=True, blank=True)
     meeting_pass = models.CharField(blank=True, null=True)
-    answer = models.CharField(verbose_name="meeting joiner's answer", null=False, blank=False)
+    answer = models.JSONField(verbose_name="meeting joiner's answer", null=False, blank=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
 

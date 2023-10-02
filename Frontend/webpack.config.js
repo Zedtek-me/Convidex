@@ -1,5 +1,5 @@
 const path = require("path")
-
+const NodePolyfillWebpackPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = {
     entry:path.join(__dirname, "/src/roots/index.jsx"),
@@ -36,5 +36,8 @@ module.exports = {
         port:5000,
         historyApiFallback:true,
         hot:true
-    }
+    },
+    plugins : [
+        new NodePolyfillWebpackPlugin()
+    ]
 }

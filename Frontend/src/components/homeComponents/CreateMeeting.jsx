@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, use, useEffect} from "react"
 import { useNavigate } from "react-router-dom"
 import { handleMeetingInput, CREATE_MEETING , WebRtcPlugin, WebSocketPlugin, handleSubmitForm } from "../../utilities/meetingInfoUtils"
 import { useLazyQuery, useMutation, gql } from "@apollo/client"
@@ -7,8 +7,26 @@ import { createContext } from "react"
 
 const CreateMeeting = ()=>{
     let [meetingInfo, setMeetingInfo] = useState({})
-    let redirect = useNavigate()
-
+    let [backendResponse, setBackendResponse] = useState(null)
+    let redirect;
+    redirect = useNavigate()
+    useEffect(()=>{
+        // redirect based on backend responses
+        console.log("backend response... ", backendResponse)
+        if(backendResponse == "meeting successfully created!"){
+            redirect("/dashboard")
+        }
+        else if(backendResponse == "joining"){
+            // redirect to meeting room
+            redirect("/meeting-room")
+        }
+        else if((backendResponse == "Not found")){
+            redirect("/")
+        }
+        else if(backendResponse == "failed to create meeting"){
+            redirect("/create-meeting")
+        }
+    }, [backendResponse])
     return (
         <div className="create-meeting">
             <form>
@@ -29,7 +47,12 @@ const CreateMeeting = ()=>{
                     <input type="password" name="meeting-password" id="meeting-password" placeholder="password" onChange={(e)=>handleMeetingInput(e, setMeetingInfo)}/>
                 </label>
                 <label htmlFor="btn" id="btn-label">
-                    <button type="button" name="create-meeting" id="create-btn" onClick={(e)=>handleSubmitForm(e, meetingInfo)}>Submit</button>
+                    <button type="button" name="create-meeting" id="create-btn" onClick={async (e)=>{
+                        backendResponse = await handleSubmitForm(e, meetingInfo)
+                        setBackendResponse(backendResponse)
+                        }}>
+                    Submit
+                    </button>
                 </label>
             </form>
         </div>

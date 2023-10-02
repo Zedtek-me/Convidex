@@ -14,7 +14,7 @@ class Signaling(WebsocketConsumer):
     def connect(self):
         self.accept()
         # save connected user queue name to db for messages from outside the consumer class
-        user = self.scope.get("user")
+        user = User.objects.filter(id=1).first()
         try:
             user_profile = Profile.objects.get(owner_id=user.id)
         except Profile.DoesNotExist as e:
@@ -29,11 +29,10 @@ class Signaling(WebsocketConsumer):
         receive directly from the connected websocket client.
         decide what to do based on whether it's an offer, answer or others
         '''
-        user_id = self.scope.get("user").id
+        user_id = 1
         user = User.objects.filter(id=user_id).first()
-        print("user... ", user)
         data = json.loads(text_data)
-        print("data.... ", data, "type of data... ", type(data))
+        print("data.... ", data, "type of data... ")
         is_offer = False
         ice_candidate = data.get("ice_candidate")
         # for offer

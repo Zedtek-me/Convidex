@@ -10,7 +10,7 @@ import "./App.css"
 
 const cache = new InMemoryCache()
 const apiClient = new ApolloClient({
-    url:"",
+    url:"http://localhost:9000/graph_api/",
     cache:cache
 })
 
