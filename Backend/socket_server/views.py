@@ -8,36 +8,38 @@ from socket_server.models import Meeting, User, MeetingJoiner
 import json
 from socket_server.serializers import MeetingSerializer, UserSerializer, MeetingJoinerSerializer
 from django.utils import timezone
+from django.db.models import Q, F
 
 @api_view(["POST"])
 def create_meeting(request):
     '''uses rest for meeting creation and signaling'''
     default_user = User.objects.filter(id=1).first()
-    data = json.loads(request.body)
-    meeting_title = data.get("meeting-title", "Untitled")
-    meeting_password = data.get("meeting-password")
-    start_date = data.get("start-date")
-    end_date = data.get("end-date")
-    offer = data.get("offer")
-    
-    db_payload = {
-        "title":meeting_title,
-        "password":meeting_password,
-        "start_date":start_date,
-        "end_date":end_date,
-        "owner":default_user,
-        "offer":offer
-    }
-
-    meeting = MeetingJoinerSerializer(db_payload)
-    if (meeting.is_valid(raise_exception=True)):
-        return Response("meeting created successfully!", status=status.HTTP_200_OK)
+    db_payload = request.data
+    meeting = MeetingSerializer(data=db_payload, partial=True)
+    if (meeting.is_valid()):
+        meeting.save(owner=default_user)
+        return Response({"created":"meeting successfully created!","data":meeting.data}, status=status.HTTP_200_OK)
+    print("errors... ", meeting.errors)
+    return Response({"error":"invalid request!","errors":meeting.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(["POST"])
 def join_meeting(request):
     '''user joining meeting'''
-    pass
+    db_payload = request.data
+    meeting_id = db_payload.pop("meeting_id")
+    meeting_link = db_payload.pop("meeting_link")
+    meeting = Meeting.objects.filter(Q(id=meeting_id) | Q(meeting_link=meeting_link)).first()
+    default_joiner = User.objects.last()
+    if(not meeting):
+        raise Exception(f"meeting {'id' if meeting_id else 'link'} is not valid!")
+    if(meeting.password and (meeting.password != db_payload.get("meeting_pass"))):
+        raise Exception("meeting password is wrong!")
+    joining = MeetingJoinerSerializer(data=db_payload, partial=True)
+    if(joining.is_valid()):
+        joining.save(meeting=meeting, joiner=default_joiner)
+        return Response({"joined":"joined meeting successfully!", "data":joining.data}, status=status.HTTP_200_OK)
+    return Response(joining.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])

@@ -1,6 +1,6 @@
 import React from "react"
 import Nav from "./Nav.jsx"
-import "./Home.css"
+import "../styles/Home.css"
 import Body from "./Body.jsx"
 import Hero from "./Hero.jsx"
 import Footer from "./Footer.jsx"
