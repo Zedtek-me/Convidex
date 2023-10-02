@@ -7,7 +7,8 @@ import { createContext } from "react"
 
 const CreateMeeting = ()=>{
     let [meetingInfo, setMeetingInfo] = useState({})
-    let redirect, backendResponse
+    let [backendResponse, setBackendResponse] = useState(null)
+    let redirect;
     redirect = useNavigate()
     useEffect(()=>{
         // redirect based on backend responses
@@ -19,7 +20,7 @@ const CreateMeeting = ()=>{
             // redirect to meeting room
             redirect("/meeting-room")
         }
-        else if(backendResponse == "Not found"){
+        else if((backendResponse == "Not found")){
             redirect("/")
         }
         else if(backendResponse == "failed to create meeting"){
@@ -46,8 +47,9 @@ const CreateMeeting = ()=>{
                     <input type="password" name="meeting-password" id="meeting-password" placeholder="password" onChange={(e)=>handleMeetingInput(e, setMeetingInfo)}/>
                 </label>
                 <label htmlFor="btn" id="btn-label">
-                    <button type="button" name="create-meeting" id="create-btn" onClick={(e)=>{
-                        backendResponse = handleSubmitForm(e, meetingInfo)
+                    <button type="button" name="create-meeting" id="create-btn" onClick={async (e)=>{
+                        backendResponse = await handleSubmitForm(e, meetingInfo)
+                        setBackendResponse(backendResponse)
                         }}>
                     Submit
                     </button>
