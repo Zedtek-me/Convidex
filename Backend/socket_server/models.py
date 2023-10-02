@@ -75,9 +75,8 @@ class Meeting(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not(self.link):
-            self.link = generate_uuid()
-        super().save(*args, **kwargs)
+        self.link = generate_uuid()
+        super(Meeting, self).save(*args, **kwargs)
 
     class Meta:
         db_table = "meeting"
