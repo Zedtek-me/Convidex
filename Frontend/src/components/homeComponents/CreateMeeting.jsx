@@ -1,6 +1,6 @@
 import React, {useState, use, useEffect} from "react"
 import { useNavigate } from "react-router-dom"
-import { handleMeetingInput, CREATE_MEETING , WebRtcPlugin, WebSocketPlugin, handleSubmitForm } from "../../utilities/meetingInfoUtils"
+import { handleMeetingInput, CREATE_MEETING , WebRtcPlugin, WebSocketPlugin, handleSubmitForm, handleMeetingResponse } from "../../utilities/meetingInfoUtils"
 import { useLazyQuery, useMutation, gql } from "@apollo/client"
 import { createContext } from "react"
 
@@ -12,21 +12,8 @@ const CreateMeeting = ()=>{
     redirect = useNavigate()
     useEffect(()=>{
         // redirect based on backend responses
-        if(backendResponse == "meeting successfully created!"){
-            redirect("/dashboard")
-        }
-        else if(backendResponse == "joining"){
-            // redirect to meeting room
-            redirect("/meeting-room")
-        }
-        else if((backendResponse == "Not found")){
-            // give some feedback with a tost notification here before redirecting
-            setTimeout(()=>redirect("/"), 2000)
-        }
-        else if(backendResponse == "failed to create meeting"){
-            redirect("/create-meeting")
-        }
-    }, [backendResponse])
+        handleMeetingResponse(redirect, backendResponse)
+    }, [redirect, backendResponse])
     return (
         <div className="create-meeting">
             <form>
