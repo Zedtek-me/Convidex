@@ -12,7 +12,6 @@ const CreateMeeting = ()=>{
     redirect = useNavigate()
     useEffect(()=>{
         // redirect based on backend responses
-        console.log("backend response... ", backendResponse)
         if(backendResponse == "meeting successfully created!"){
             redirect("/dashboard")
         }
@@ -21,7 +20,8 @@ const CreateMeeting = ()=>{
             redirect("/meeting-room")
         }
         else if((backendResponse == "Not found")){
-            redirect("/")
+            // give some feedback with a tost notification here before redirecting
+            setTimeout(()=>redirect("/"), 2000)
         }
         else if(backendResponse == "failed to create meeting"){
             redirect("/create-meeting")

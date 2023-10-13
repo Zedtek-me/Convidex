@@ -219,3 +219,73 @@ html, body, #root{
     background-color: blue;
     color: white;
 }
+
+/* join meeting styles starts here */
+
+.join-meeting-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    background-color: rgb(26, 24, 24);
+    color: white;
+    height: 100vh;
+    padding: 2%;
+}
+
+#join-text{
+    align-self: flex-start;
+    font-size:50px;
+    margin-bottom: -10px;
+}
+
+#divider{
+    width: 100%;
+}
+
+.join-meeting-form form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* border: solid 2px yellow; */
+    height: 100%;
+}
+
+.join-meeting-form form label{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items:center;
+    width: 50%;
+    height:80%;
+    /* border: solid 1px blue; */
+}
+
+.join-meeting-form form label input{
+    width: 100%;
+    height: 50px;
+    border:none;
+    outline: none;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+#field-identifier{
+    align-self: flex-start;
+}
+
+.enter-meeting{/*submit btn for join meeting credentials collection form*/
+    width: 10%;
+    height: 20%;
+    background-color: blue;
+    border-radius:20px;
+    color:white;
+    font-size:400;
+    margin-top: 10px;
+    cursor:pointer;
+    border: none;
+    outline: none;
+}
