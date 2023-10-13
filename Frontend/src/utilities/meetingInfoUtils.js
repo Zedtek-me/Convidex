@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import dotenv from "dotenv"
-
+import { redirect } from "react-router-dom";
 dotenv.config()
 
 const signalServerUrl = process.env.SIGNAL_SERVER_URL || "ws://localhost:9000/signaling/"
@@ -155,16 +155,33 @@ export const handleSubmitForm = async (e, stateInfo)=>{
     }
 
     else if(element.name == "join-meeting"){
-        // send a request to join the meeting
-        let answer = await rtcConnection.peerConnection.createAnswer()
-        await rtcConnection.peerConnection.setLocalDescription(answer)
-        console.log("answer created here... ", answer)
-        feedback = await createOrJoinMeeting({
-            answer:answer,
-            meetingLink:stateInfo["meeting-link"],
-            meetingTitle : stateInfo["meeting-title"],
-            meetingPassword : stateInfo["password"]
-        })
+        // send a request togt meeting to join the meeting
+        let meetingTojoin = await getRemoteMeetingInfo(stateInfo)
+        if(meetingTojoin && (meetingTojoin != "No meeting found!" && !(meetingTojoin == "Meeting password is wrong!"))){
+            /* 
+            We got our meeting here, so:
+            check to be sure there's a remote offer already, and that the remote offer matches that of the.
+            meeting we want to join.
+            if not, get send a request to get the offer of the meeting user wishes to join
+            else, cros
+            **/
+            let meetingOffer = meetingTojoin.offer
+            await rtcConnection.peerConnection.setRemoteDescription(meetingOffer)
+            let answer = await rtcConnection.peerConnection.createAnswer()
+            await rtcConnection.peerConnection.setLocalDescription(answer)
+            console.log("answer created here... ", answer)
+            feedback = await createOrJoinMeeting({
+                answer:answer,
+                meetingLink:stateInfo["meeting-link"],
+                meetingTitle : stateInfo["meeting-title"],
+                meetingPassword : stateInfo["password"],
+                meetingId: stateInfo["id"] || null
+            })
+        }
+
+        else if(meetingTojoin && (meetingTojoin == "No meeting found!" || meetingTojoin instanceof Error)){
+            feedback = meetingTojoin
+        }
     }
     console.log("feedback here... ", feedback)
     if(feedback ? feedback.created : null){
@@ -190,4 +207,51 @@ export const startScheduledMeeting = ()=>{
 
 export const useGetLocalStreams = async ()=>{
     return await rtcConnection.getLocalMedia()
+}
+
+export const handleMeetingResponse = (redirect, backendResponse) =>{
+    if(backendResponse == "meeting successfully created!"){
+        redirect("/dashboard")
+    }
+    else if(backendResponse == "joining"){
+        // redirect to meeting room
+        redirect("/meeting-room")
+    }
+    else if((backendResponse == "Not found")){
+        // give some feedback with a tost notification here before redirecting
+        setTimeout(()=>redirect("/"), 2000)
+    }
+    else if(backendResponse == "failed to create meeting"){
+        redirect("/create-meeting")
+    }
+}
+
+
+export const getRemoteMeetingInfo = async (stateInfo) =>{
+
+    let title, link, password, meeting, id;
+    title = stateInfo["meeting-title"]
+    link = stateInfo["meeting-link"]
+    id = stateInfo["meeting-id"] || null
+    password = stateInfo["meeting-password"]
+    meeting = await fetch('http://localhost:9000/get-meeting-info/', {
+        method:"POST",
+        body:JSON.stringify({
+            meeting_title:title,
+            meeting_id:id,
+            meeting_link:link
+        }),
+        headers:{
+            "Content-Type":"Application/json"
+        }
+    })
+    meeting = await meeting.json()
+    // compare passwords or raise error to user about password
+    if(meeting && meeting.password == password){
+        return meeting
+    }
+    else if(meeting && !(meeting.password == password)){
+        return "Meeting password is wrong!"
+    }
+    else return "No meeting found!"
 }
