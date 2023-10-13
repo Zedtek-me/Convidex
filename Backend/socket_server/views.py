@@ -9,6 +9,7 @@ import json
 from socket_server.serializers import MeetingSerializer, UserSerializer, MeetingJoinerSerializer
 from django.utils import timezone
 from django.db.models import Q, F
+from socket_server.utils.exceptions import ErrorException
 
 @api_view(["POST"])
 def create_meeting(request):
@@ -27,14 +28,14 @@ def create_meeting(request):
 def join_meeting(request):
     '''user joining meeting'''
     db_payload = request.data
-    meeting_id = db_payload.pop("meeting_id")
-    meeting_link = db_payload.pop("meeting_link")
-    meeting = Meeting.objects.filter(Q(id=meeting_id) | Q(meeting_link=meeting_link)).first()
+    meeting_id = db_payload.get("meeting_id")
+    meeting_link = db_payload.get("meeting_link")
+    meeting = Meeting.objects.filter(Q(id=meeting_id) | Q(link=meeting_link)).first()
     default_joiner = User.objects.last()
     if(not meeting):
-        raise Exception(f"meeting {'id' if meeting_id else 'link'} is not valid!")
+        return Response(f"meeting {'id' if meeting_id else 'link'} is not valid!", exception=True, status=status.HTTP_404_NOT_FOUND)
     if(meeting.password and (meeting.password != db_payload.get("meeting_pass"))):
-        raise Exception("meeting password is wrong!")
+        return Response("meeting password is wrong!", exception=True, status=status.HTTP_406_NOT_ACCEPTABLE)
     joining = MeetingJoinerSerializer(data=db_payload, partial=True)
     if(joining.is_valid()):
         joining.save(meeting=meeting, joiner=default_joiner)
@@ -46,3 +47,21 @@ def join_meeting(request):
 def add_ice_candidate(request):
     '''adds an ice candidate from the remote user'''
     pass
+
+
+
+@api_view(["POST"])
+def get_meeting_details(request):
+    meeting_title = request.data.get("meeting_title")
+    meeting_id = request.data.get("meeting_id")
+    meeting_link = request.data.get("meeting_link")
+
+    found_meeting = Meeting.objects.filter(Q(id=meeting_id) | Q(title__iexact=meeting_title) | Q(link__iexact=meeting_link)).first()
+    if not found_meeting:
+        raise ErrorException(
+            message=f"""
+            no meeting found with the {'title'if meeting_title else ('id' if meeting_id else 'link')}: {meeting_title or meeting_id or meeting_link}
+            """
+            )
+    serialized_meeting = MeetingSerializer(found_meeting)
+    return Response(data=serialized_meeting.data, status=status.HTTP_200_OK)

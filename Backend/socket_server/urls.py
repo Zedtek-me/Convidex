@@ -8,5 +8,6 @@ urlpatterns = [
     path("", lambda req:HttpResponse("it works!"), name="dummy_route"),
     path("graph_api/", csrf_exempt(GraphQLView.as_view(graphiql=True)), name="graph_api_home"),
     path("create-meeting/", create_meeting, name="create-meeting"),
-    path("join-meeting/", join_meeting, name="join-meeting")
+    path("join-meeting/", join_meeting, name="join-meeting"),
+    path("get-meeting-info/", get_meeting_details, name="get-meeting-info")
 ]
