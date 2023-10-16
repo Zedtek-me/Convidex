@@ -13,6 +13,8 @@ class MeetingSerializer(serializers.ModelSerializer):
         fields = "__all__"
     
 class MeetingJoinerSerializer(serializers.ModelSerializer):
+    joiner = UserSerializer()
+    meeting = MeetingSerializer()
     class Meta:
         model = MeetingJoiner
         fields = "__all__"
