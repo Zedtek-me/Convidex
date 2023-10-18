@@ -131,6 +131,7 @@ socket.signalingServer.onmessage = (e)=>{
 export const handleSubmitForm = async (e, stateInfo)=>{
     var element;
     element = e.target
+    if(!stateInfo || !stateInfo["meeting-title"]) return "Not found"
     if(element.name == "create-meeting"){
         // send message to backend to create meeting
         let offer = await rtcConnection.peerConnection.createOffer()
