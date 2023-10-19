@@ -191,8 +191,7 @@ export const handleSubmitForm = async (e, stateInfo)=>{
     // here you've sent to join a meeting, and it's been successfully created on the backend
     if(feedback ? feedback.joined: null){
         // set remote description with the offer gotten
-        let meetingToJoinOffer = feedback?.data?.offer || feedback?.data?.joined
-        console.log("offer for the meeting to join... ", meetingToJoinOffer)
+
         // await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
         return "joining"
     }
@@ -207,7 +206,7 @@ export const startScheduledMeeting = ()=>{
 }
 
 
-export const useGetLocalStreams = async ()=>{
+export const getLocalStreams = async ()=>{
     return await rtcConnection.getLocalMedia()
 }
 
