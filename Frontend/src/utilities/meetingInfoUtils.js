@@ -216,7 +216,10 @@ export const handleMeetingResponse = (redirect, backendResponse) =>{
     }
     else if(backendResponse == "joining"){
         // redirect to meeting room
-        redirect("/meeting-room")
+        /**  
+         * find a way to send the meeting id as a query param to the meeting room page,
+        */
+        redirect("/meeting-room", {query:{meetingId:"id of the meeting goes here..."}})
     }
     else if((backendResponse == "Not found")){
         // give some feedback with a tost notification here before redirecting
