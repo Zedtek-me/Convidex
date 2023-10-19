@@ -131,6 +131,7 @@ socket.signalingServer.onmessage = (e)=>{
 export const handleSubmitForm = async (e, stateInfo)=>{
     var element;
     element = e.target
+    if(!stateInfo || !stateInfo["meeting-title"]) return "Not found"
     if(element.name == "create-meeting"){
         // send message to backend to create meeting
         let offer = await rtcConnection.peerConnection.createOffer()
@@ -174,7 +175,7 @@ export const handleSubmitForm = async (e, stateInfo)=>{
                 answer:answer,
                 meetingLink:stateInfo["meeting-link"],
                 meetingTitle : stateInfo["meeting-title"],
-                meetingPassword : stateInfo["password"],
+                meetingPassword : stateInfo["meeting-password"],
                 meetingId: stateInfo["id"] || null
             })
         }
@@ -190,8 +191,8 @@ export const handleSubmitForm = async (e, stateInfo)=>{
     // here you've sent to join a meeting, and it's been successfully created on the backend
     if(feedback ? feedback.joined: null){
         // set remote description with the offer gotten
-        let meeting_to_join_offer = feedback?.data?.offer
-        await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
+
+        // await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
         return "joining"
     }
 
@@ -205,7 +206,7 @@ export const startScheduledMeeting = ()=>{
 }
 
 
-export const useGetLocalStreams = async ()=>{
+export const getLocalStreams = async ()=>{
     return await rtcConnection.getLocalMedia()
 }
 
@@ -239,7 +240,8 @@ export const getRemoteMeetingInfo = async (stateInfo) =>{
         body:JSON.stringify({
             meeting_title:title,
             meeting_id:id,
-            meeting_link:link
+            meeting_link:link,
+            meeting_pass:password
         }),
         headers:{
             "Content-Type":"Application/json"

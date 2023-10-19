@@ -5,7 +5,7 @@ import { useQuery, useMutation, gql } from "@apollo/client"
 import {Home} from "../components/homeComponents/Home.jsx"
 import CreateMeeting from "../components/homeComponents/CreateMeeting.jsx"
 import JoinMeeting from "../components/homeComponents/JoinMeeting.jsx"
-
+import Room from "../components/MeetingRoom.jsx"
 import "./App.css"
 
 const cache = new InMemoryCache()
@@ -25,6 +25,7 @@ export default function App(props){
                             <Route index element={<Home/>}/>
                             <Route path="create-meeting" element={<CreateMeeting/>}/>
                             <Route path="join-meeting" element={<JoinMeeting/>}/>
+                            <Route path="meeting-room" element={<Room/>}/>
                         </Route>
                     </Routes>
                 </Router>
