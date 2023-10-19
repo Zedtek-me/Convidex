@@ -14,8 +14,8 @@ const Room = ()=>{
     }, [localVidElement])
     return (
         <div className="meeting-room">
-            <div className="host-video-cont">
-                <video className="host-video" ref={localVidElement} style={{width:"50%", height:"50%", display:"flex"}} autoPlay playsInline></video>
+            <div className="video-cont">
+                <video className="host-video" ref={localVidElement} autoPlay playsInline></video>
             </div>
             {/* meeting room used for both one-on-one meeting and group meeting */}
         </div>

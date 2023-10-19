@@ -7,7 +7,7 @@ import CreateMeeting from "../components/homeComponents/CreateMeeting.jsx"
 import JoinMeeting from "../components/homeComponents/JoinMeeting.jsx"
 import Room from "../components/MeetingRoom.jsx"
 import "./App.css"
-
+import "../components/styles/Room.css"
 const cache = new InMemoryCache()
 const apiClient = new ApolloClient({
     url:"http://localhost:9000/graph_api/",
