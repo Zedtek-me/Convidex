@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import dotenv from "dotenv"
-import { redirect } from "react-router-dom";
+import { redirect, createSearchParams } from "react-router-dom";
 dotenv.config()
 
 const signalServerUrl = process.env.SIGNAL_SERVER_URL || "ws://localhost:9000/signaling/"
@@ -193,7 +193,7 @@ export const handleSubmitForm = async (e, stateInfo)=>{
         // set remote description with the offer gotten
 
         // await rtcConnection.peerConnection.setRemoteDescription(meeting_to_join_offer)
-        return "joining"
+        return ["joining", feedback.data]
     }
 
     else{
@@ -207,19 +207,33 @@ export const startScheduledMeeting = ()=>{
 
 
 export const getLocalStreams = async ()=>{
-    return await rtcConnection.getLocalMedia()
+    /**gets local media streams, and adds it to connection too. */
+    let localStream = await rtcConnection.getLocalMedia()
+    await rtcConnection.addLocalStreamToConnection(localStream)
+    return localStream
+}
+
+export const getRemoteStreams = () => {
+    /**listens for remote media tracks, and adds them to the current peerConnection.
+     * also, finds a way to group the tracks, and return an array of the grouped tracks
+     * in order to use them create video elements dynamically in the room component.
+     */
 }
 
 export const handleMeetingResponse = (redirect, backendResponse) =>{
     if(backendResponse == "meeting successfully created!"){
         redirect("/dashboard")
     }
-    else if(backendResponse == "joining"){
+    else if(Array.isArray(backendResponse) && backendResponse.length > 1){
         // redirect to meeting room
         /**  
-         * find a way to send the meeting id as a query param to the meeting room page,
+         * they've been confirmed to join the meeting, and we got an array like ["joining", {id,joiner,meeting,...rest}]
         */
-        redirect("/meeting-room", {query:{meetingId:"id of the meeting goes here..."}})
+       let meetingJoinerData = backendResponse[1]
+        redirect({
+            pathname:"/meeting-room",
+            search:createSearchParams({"meetingJoinerId":meetingJoinerData.id}).toString()
+        })
     }
     else if((backendResponse == "Not found")){
         // give some feedback with a tost notification here before redirecting
@@ -231,26 +245,43 @@ export const handleMeetingResponse = (redirect, backendResponse) =>{
 }
 
 
-export const getRemoteMeetingInfo = async (stateInfo) =>{
-
+export const getRemoteMeetingInfo = async (stateInfo=null, meetingId=null) =>{
     let title, link, password, meeting, id;
-    title = stateInfo["meeting-title"]
-    link = stateInfo["meeting-link"]
-    id = stateInfo["meeting-id"] || null
-    password = stateInfo["meeting-password"]
-    meeting = await fetch('http://localhost:9000/get-meeting-info/', {
-        method:"POST",
-        body:JSON.stringify({
-            meeting_title:title,
-            meeting_id:id,
-            meeting_link:link,
-            meeting_pass:password
-        }),
-        headers:{
-            "Content-Type":"Application/json"
-        }
-    })
-    meeting = await meeting.json()
+    if(stateInfo){
+        title = stateInfo["meeting-title"]
+        link = stateInfo["meeting-link"]
+        id = stateInfo["meeting-id"] || null
+        password = stateInfo["meeting-password"]
+        meeting = await fetch('http://localhost:9000/get-meeting-info/', {
+            method:"POST",
+            body:JSON.stringify({
+                meeting_title:title,
+                meeting_id:id,
+                meeting_link:link,
+                meeting_pass:password
+            }),
+            headers:{
+                "Content-Type":"Application/json"
+            }
+        })
+        meeting = await meeting.json()
+    }
+
+    if(meetingId){
+        meeting = await fetch("http://localhost:9000/get-meeting-info",{
+            method:"POST",
+            body: JSON.stringify({
+                meeting_id:meetingId
+            }),
+            headers:{
+                "content-type":"Application/json"
+            }
+        })
+
+        meeting = await meeting.json()
+        console.log("meeting retrieved with only id... ", meeting)
+        password = meeting.data.password
+    }
     // compare passwords or raise error to user about password
     if(meeting && meeting.password == password){
         return meeting
@@ -260,3 +291,21 @@ export const getRemoteMeetingInfo = async (stateInfo) =>{
     }
     else return "No meeting found!"
 }
+
+
+export const getMeetingJoiner = async (meetingJoinerId) => {
+    let joiner = await fetch("http://localhost:9000/get-joiner-info/", {
+        method:"POST",
+        body:JSON.stringify({
+            joiner_id:meetingJoinerId
+        }),
+        headers:{
+            "Content-Type":"Application/json"
+        }
+    })
+    joiner = await joiner.json()
+    return joiner
+}
+
+
+export const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value)
