@@ -65,3 +65,14 @@ def get_meeting_details(request):
             """}, exception=True, status=status.HTTP_404_NOT_FOUND)
     serialized_meeting = MeetingSerializer(found_meeting)
     return Response(data=serialized_meeting.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(["POST"])
+def get_meeting_joiner(request):
+    joiner_id = request.data.get("joiner_id")
+    joiner_obj = MeetingJoiner.objects.filter(id=joiner_id).first()
+    if not(joiner_id):
+        return Response({"errors":f"joiner with id: {joiner_id} not found!"}, status=status.HTTP_404_NOT_FOUND, exception=True)
+    serialized_joiner_obj = MeetingJoinerSerializer(joiner_obj)
+    return Response({"data":serialized_joiner_obj.data}, status=status.HTTP_200_OK)
