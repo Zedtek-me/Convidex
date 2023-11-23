@@ -28,7 +28,7 @@ def create_meeting(request):
 def join_meeting(request):
     '''user joining meeting'''
     db_payload = request.data
-    print("payload... ", db_payload)
+    print("payload... ", db_payload, "type of payload\n", type(db_payload) )
     meeting_id = db_payload.get("meeting_id")
     meeting_link = db_payload.get("meeting_link")
     meeting_title = db_payload.get("meeting_title")

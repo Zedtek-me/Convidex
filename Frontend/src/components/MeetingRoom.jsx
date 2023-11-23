@@ -1,13 +1,14 @@
 import React, { createRef, useRef, useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { getLocalStreams, getRemoteMeetingInfo, getMeetingJoiner } from "../utilities/meetingInfoUtils"
+import { getLocalStreams, getRemoteMeetingInfo, getMeetingJoiner, rtcConnection } from "../utilities/meetingInfoUtils"
 
 const Room = () => {
     let localVidElement = useRef(null)
-    let [meetingJoiners, setMeetingJoiners] = useState([])
-    let [meeting, setMeeting] = useState(null)
+    let [meetingJoiner, setMeetingJoiner] = useState({})//either the owner of the meeting or remote joiners.
+    let [remoteStreams, setRemoteStreams] = useState([])//for all remote streams added to the current conn.
     let [searchParams, setSearchParams] = useSearchParams()
-    let meetingJoinerId = searchParams.get("meetingJoinerId")
+    let meetingJoinerId, remoteMedia, joiner;
+    meetingJoinerId = searchParams.get("meetingJoinerId")
     useEffect(() => {
         async function setLocalStream() {
             let localStreams = await getLocalStreams()
@@ -21,17 +22,20 @@ const Room = () => {
     // meeting fetcher effect
     useEffect(() => {
         // fetches meeting and update accordingly
-        let joiner;
         const getMeeting = async () => {
             joiner = await getMeetingJoiner(meetingJoinerId=meetingJoinerId)//find a way to modify this function for getting meeting here too.
             if(joiner){
-                let currentMeeting = joiner.data.meeting
-                setMeetingJoiners((currentJoinersArray)=> currentJoinersArray.push(joiner))
-                setMeeting(currentMeeting)
-            }
+                setMeetingJoiner(joiner)
+            }            
         }
         getMeeting()
-    }, [meetingJoinerId])
+    }, [meetingJoinerId, joiner])
+
+    rtcConnection.peerConnection.ontrack = ({track, streams}) => {
+        setRemoteStreams((curStream) => [...curStream, ...streams])//adds the stream of the remote joiner, which is used in the Room for dynamic vid element creation
+        console.log("remote track gotten:\n", track, "remote stream gotten:\n", streams)
+    }
+    console.log("remote streams... ", remoteStreams)
     return (
         <div className="meeting-room">
             <div className="video-cont">
