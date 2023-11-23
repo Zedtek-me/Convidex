@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.db.models import Q
 from channels.layers import get_channel_layer
-
+from asgiref.sync import async_to_sync
 channel_layer = get_channel_layer()#our publisher
 
 class Signaling(WebsocketConsumer):
@@ -21,6 +21,8 @@ class Signaling(WebsocketConsumer):
             return self.send(json.dumps("logged in user not found!"))
         user_profile.user_queue = self.channel_name
         user_profile.save()
+        # add all connecting user to this default group for now, in order to receive ice_candidates
+        self.channel_layer.group_add("default_group", self.channel_name)
         self.send(json.dumps("connected to web socket server!"))
 
     
@@ -80,13 +82,15 @@ class Signaling(WebsocketConsumer):
             '''
             users are sending ice candidates to connecte to each other
             '''
-            ellipsis
+            #send the iceCandidate value to either a group or a specific user that needs to add it remotely -- not to yourself.
+            async_to_sync(self.channel_layer.group_send("default_group", {
+                "type":"default.group.handler",
+                "ice_candidate":ice_candidate
+            }))
 
         if data.get("message"):
             self.send(json.dumps(json.loads(data.get("message"))))
 
-    def disconnect(self, code):
-        return super().disconnect(code)
 
     def user_queue_handler(self, message):
         '''
@@ -101,3 +105,14 @@ class Signaling(WebsocketConsumer):
                 "answer":message.get("answer")
             }))
         # if it's an ice candidate, determine what to do about it.
+
+    def default_group_handler(self, event):
+        '''handles message sent to this default group for all to recieve'''
+        ice_candidate = event.get("ice_candidate")
+        if ice_candidate:
+            self.send(json.dumps({
+                "ice_candidate":ice_candidate
+            }))
+
+    def disconnect(self, code):
+        return super().disconnect(code)

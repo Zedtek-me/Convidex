@@ -52,12 +52,12 @@ export class WebRtcPlugin{
             video:true,
             audio:true
         })
-
+        this.addLocalStreamToConnection(localMediaStream)
         return localMediaStream
     }
 
-    async addLocalStreamToConnection(mediaStream){
-        let localTracks = await mediaStream.getTracks()
+    addLocalStreamToConnection(mediaStream){
+        let localTracks = mediaStream.getTracks()
         localTracks.map((track)=>{
             this.peerConnection.addTrack(track, mediaStream)
         })
@@ -80,6 +80,31 @@ export class WebSocketPlugin{
 }
 
 
+// instantiate signalingServer here
+export const socket = new WebSocketPlugin(signalServerUrl)
+export const rtcConnection = new WebRtcPlugin({
+    iceServers:[{urls:["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}]
+    })
+const date = new Date()
+console.log("current signaling state... ", rtcConnection.peerConnection.signalingState)
+var feedback;
+socket.signalingServer.onmessage = (e)=>{
+    feedback = JSON.parse(e.data)
+    console.log("feedback from signaling server ... ", feedback)
+    if (feedback.ice_candidate){
+        let remoteCandidate = feedback.ice_candidate
+        rtcConnection.peerConnection.addIceCandidate(remoteCandidate)
+    }
+}
+
+// listen for iceCandidate here, and send it via webSocket
+rtcConnection.peerConnection.onicecandidate = ({candidate}) =>{
+    socket.sendMesage(JSON.stringify({"ice_candidate":candidate}))
+    console.log("ice candidate found and sent. candidate here... :", candidate)
+}
+rtcConnection.peerConnection.onsignalingstatechange = (e) => {
+    console.log("signaling state changed... ", e)
+}
 export const createOrJoinMeeting = async (meetingDetails)=>{
     if(meetingDetails.offer){
         let response = await fetch("http://localhost:9000/create-meeting/", {
@@ -115,17 +140,6 @@ export const createOrJoinMeeting = async (meetingDetails)=>{
         let data = await response.json()
         return data || null
     }
-}
-
-// instantiate signalingServer here
-const socket = new WebSocketPlugin(signalServerUrl)
-const rtcConnection = new WebRtcPlugin({iceServers:[{"urls":["stun:stun.l.google.com:19302"]}]})
-const date = new Date()
-
-var feedback;
-socket.signalingServer.onmessage = (e)=>{
-    feedback = JSON.parse(e.data)
-    console.log("feedback from signaling server ... ", feedback)
 }
 
 export const handleSubmitForm = async (e, stateInfo)=>{
@@ -205,19 +219,11 @@ export const startScheduledMeeting = ()=>{
     // starts a scheduled meeting for the user; gets the initial offer set on the meeting
 }
 
-
 export const getLocalStreams = async ()=>{
     /**gets local media streams, and adds it to connection too. */
     let localStream = await rtcConnection.getLocalMedia()
-    await rtcConnection.addLocalStreamToConnection(localStream)
+    // rtcConnection.addLocalStreamToConnection(localStream)
     return localStream
-}
-
-export const getRemoteStreams = () => {
-    /**listens for remote media tracks, and adds them to the current peerConnection.
-     * also, finds a way to group the tracks, and return an array of the grouped tracks
-     * in order to use them create video elements dynamically in the room component.
-     */
 }
 
 export const handleMeetingResponse = (redirect, backendResponse) =>{
